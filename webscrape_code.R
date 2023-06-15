@@ -5,6 +5,9 @@ library(rvest)
 library(janitor)
 library(lubridate)
 
+# Extract the Package Id for each sites datasets ----
+# Could have been done in one step but in trial the page would time out
+
 andrews_page <-
   "http://portal.edirepository.org:80/nis/simpleSearch?defType=edismax&q=*:*&fq=-scope:ecotrends&fq=-scope:lter-landsat*&fq=scope:(knb-lter-and)&fl=id,packageid,title,author,organization,pubdate,coordinates&debug=false&start=0&rows=150" %>%
   read_html()
@@ -126,6 +129,9 @@ vcr_page <-
   "http://portal.edirepository.org:80/nis/simpleSearch?defType=edismax&q=*:*&fq=-scope:ecotrends&fq=-scope:lter-landsat*&fq=scope:(knb-lter-vcr)&fl=id,packageid,title,author,organization,pubdate,coordinates&debug=false&start=0&rows=330" %>%
   read_html()
 
+# Scraper function ----
+# extracts the start and end date from each LTER sites metadata page
+
 scraper <- function(package_id) {
   cat("Scraping", package_id, "\n")
   data <- str_c("https://portal.edirepository.org/nis/metadataviewer?packageid=",
@@ -139,6 +145,9 @@ scraper <- function(package_id) {
   tibble(begin = pluck(data, 1), 
          end = pluck(data, 1))
 }
+
+# Apply the scraper function ----
+# applies the scraper function to extract the datasets publication_date, package_id, begin, and end dates
 
 andrews_data <- andrews_page %>%
   html_table() %>%
@@ -383,7 +392,9 @@ vcr_data <- vcr_page %>%
   unnest(date) %>%
   select(!c(title,creators))
 
-# Combine datasets (exclude Harvard because they only provide year and not a date)
+# Combine datasets ----
+# exclude Harvard because they only provide year and not a date
+
 all_data <- rbind(andrews_data,arctic_data,baltimore_data,beaufort_data,
                   bonanza_data,california_data,cedar_data,cenaz_data,
                   coweeta_data,florida_data,georgia_data,
@@ -392,7 +403,8 @@ all_data <- rbind(andrews_data,arctic_data,baltimore_data,beaufort_data,
                   ntl_data,palmer_data,plum_data,santabar_data,sevilleta_data,
                   shortgrass_data,vcr_data)
 
-# Extract the three letter code for each site
+#* Extract the three letter code for each site ----
+
 all_data <- all_data %>%
   mutate(newcol = package_id) %>%
   separate(newcol, sep = "-", into = c('a','b','c')) %>%
@@ -402,17 +414,20 @@ all_data <- all_data %>%
          begin = as.Date(begin,"%Y-%m-%d"),
          end = as.Date(end,"%Y-%m-%d"))
 
-# Correct start dates that were reported as end dates and vice versa
+#* Correct start dates that were reported as end dates and vice versa ----
+
 all_data <- all_data %>%
   transform(begin = pmin(begin, end),
             end   = pmax(begin, end))
 
-# Calculate each datasets length in years
+#* Calculate each datasets length in years ----
+
 all_data <- all_data %>%
   mutate(diff = round(time_length(difftime(end,begin), "years"),3))
 
 # Treat the Harvard Forest data the same as all_data
 # Recall HF reports start and end as year which is why it is treated differently
+
 harvard_data <- harvard_data %>%
   mutate(newcol = package_id) %>%
   separate(newcol, sep = "-", into = c('a','b','c')) %>%
@@ -428,7 +443,8 @@ harvard_data <- harvard_data %>%
          end = as.Date(NA),
          diff = as.numeric(diff))
 
-# Combine all_data w/ HF and combine with LTER description csv
+# Combine all_data w/ HF and combine with LTER description csv ----
+
 all_data <- rbind(all_data,harvard_data)
 
 setwd("D:/School/Applications/Job and Fellowship Applications/L&O Eco-DAS")
@@ -442,7 +458,9 @@ all_data <- all_data %>%
          around_time = (current_year-start_year)+1,
          frac = (diff/around_time)*100)
 
+# Figures ----
 # width = 800 height = 600
+
 all_data %>%
   ggplot(aes(diff)) +
   stat_ecdf(geom = 'step', pad = F) +
