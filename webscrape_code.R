@@ -134,348 +134,338 @@ vcr_page <-
 
 scraper <- function(package_id) {
   cat("Scraping", package_id, "\n")
-  data <- str_c("https://portal.edirepository.org/nis/metadataviewer?packageid=",
-                package_id) %>%
-    read_html() %>%
-    html_elements(".subgroup.onehundred_percent") %>%
-    pluck(1) %>%
-    html_elements(".roweven") %>%
-    html_text2() 
+  url <- paste0(
+    "https://portal.edirepository.org/nis/metadataviewer?packageid=",
+    package_id
+  )
+  webpage <- read_html(url)
+  begin <- html_text(html_nodes(webpage, xpath = "//td[contains(text(), 'Begin:')]/following-sibling::td"))
+  end <- html_text(html_nodes(webpage, xpath = "//td[contains(text(), 'End:')]/following-sibling::td"))
   
-  tibble(begin = pluck(data, 1), 
-         end = pluck(data, 1))
+  if (length(begin) == 0 || length(end) == 0) {
+    return(tibble(begin = NA, end = NA))
+  }
+  
+  tibble(begin = begin[1], end = end[1])
 }
+
 
 # Apply the scraper function ----
 # applies the scraper function to extract the datasets publication_date, package_id, begin, and end dates
 
-andrews_data <- andrews_page %>%
+andrews <- andrews_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-arctic_data <- arctic_page %>%
+  select(!c(title,creators,publication_date))
+arctic <- arctic_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-baltimore_data <- baltimore_page %>%
+  select(!c(title,creators,publication_date))
+baltimore <- baltimore_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-beaufort_data <- beaufort_page %>%
+  select(!c(title,creators,publication_date))
+beaufort <- beaufort_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-bonanza_data <- bonanza_page %>%
+  select(!c(title,creators,publication_date))
+bonanza <- bonanza_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-california_data <- california_page %>%
+  select(!c(title,creators,publication_date))
+california <- california_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-cedar_data <- cedar_page %>%
+  select(!c(title,creators,publication_date))
+cedar <- cedar_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-cenaz_data <- cenaz_page %>%
+  select(!c(title,creators,publication_date))
+cenaz <- cenaz_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-coweeta_data <- coweeta_page %>%
+  select(!c(title,creators,publication_date))
+coweeta <- coweeta_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-florida_data <- florida_page %>%
+  select(!c(title,creators,publication_date))
+florida <- florida_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-georgia_data <- georgia_page %>%
+  select(!c(title,creators,publication_date))
+georgia <- georgia_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-harvard_data <- harvard_page %>%
+  select(!c(title,creators,publication_date))
+harvard <- harvard_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-hubbard_data <- hubbard_page %>%
+  select(!c(title,creators,publication_date))
+hubbard <- hubbard_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-jornada_data <- jornada_page %>%
+  select(!c(title,creators,publication_date))
+jornada <- jornada_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-kellog_data1 <- kellog_page1 %>%
+  select(!c(title,creators,publication_date))
+kellog <- kellog_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-kellog_data2 <- kellog_page2 %>%
+  select(!c(title,creators,publication_date))
+konza <- konza_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-kellog_data <- rbind(kellog_data1,kellog_data2)
-kellog_data <- kellog_data[-c(6:7,9,33:35,38,43:45,60,65,70:71),]
-konza_data <- konza_page %>%
+  select(!c(title,creators,publication_date))
+luquillo <- luquillo_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-luquillo_data <- luquillo_page %>%
+  select(!c(title,creators,publication_date))
+mcmurdo <- mcmurdo_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-mcmurdo_data <- mcmurdo_page %>%
+  select(!c(title,creators,publication_date))
+moorea <- moorea_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-moorea_data <- moorea_page %>%
+  select(!c(title,creators,publication_date))
+ninlet <- ninlet_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-ninlet_data <- ninlet_page %>%
+  select(!c(title,creators,publication_date))
+niwot <- niwot_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-niwot_data <- niwot_page %>%
+  select(!c(title,creators,publication_date))
+northeast <- northeast_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-northeast_data <- northeast_page %>%
+  select(!c(title,creators,publication_date))
+ntl <- ntl_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-ntl_data <- ntl_page %>%
+  select(!c(title,creators,publication_date))
+palmer <- palmer_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-palmer_data <- palmer_page %>%
+  select(!c(title,creators,publication_date))
+plum <- plum_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-plum_data <- plum_page %>%
+  select(!c(title,creators,publication_date))
+santabar <- santabar_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-santabar_data <- santabar_page %>%
+  select(!c(title,creators,publication_date))
+sevilleta <- sevilleta_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-sevilleta_data <- sevilleta_page %>%
+  select(!c(title,creators,publication_date))
+shortgrass <- shortgrass_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-shortgrass_data <- shortgrass_page %>%
+  select(!c(title,creators,publication_date))
+vcr <- vcr_page %>%
   html_table() %>%
   pluck(4) %>%
   clean_names() %>%
   mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
   mutate(date = map(package_id, scraper)) %>% 
   unnest(date) %>%
-  select(!c(title,creators))
-vcr_data <- vcr_page %>%
-  html_table() %>%
-  pluck(4) %>%
-  clean_names() %>%
-  mutate(across(title, ~ str_squish(str_remove_all(., "\\n")))) %>%
-  mutate(date = map(package_id, scraper)) %>% 
-  unnest(date) %>%
-  select(!c(title,creators))
+  select(!c(title,creators,publication_date))
 
 # Combine datasets ----
 # exclude Harvard because they only provide year and not a date
 
-all_data <- rbind(andrews_data,arctic_data,baltimore_data,beaufort_data,
-                  bonanza_data,california_data,cedar_data,cenaz_data,
-                  coweeta_data,florida_data,georgia_data,
-                  hubbard_data,jornada_data,kellog_data,konza_data,luquillo_data,
-                  mcmurdo_data,moorea_data,ninlet_data,niwot_data,northeast_data,
-                  ntl_data,palmer_data,plum_data,santabar_data,sevilleta_data,
-                  shortgrass_data,vcr_data)
+all_data <- rbind(andrews,arctic,baltimore,beaufort,
+                  bonanza,california,cedar,cenaz,
+                  coweeta,florida,georgia,harvard,
+                  hubbard,jornada,kellog,konza,luquillo,
+                  mcmurdo,moorea,ninlet,niwot,northeast,
+                  ntl,palmer,plum,santabar,sevilleta,
+                  shortgrass,vcr)
 
 #* Extract the three letter code for each site ----
 
-all_data <- all_data %>%
+dat <- all_data %>%
   mutate(newcol = package_id) %>%
   separate(newcol, sep = "-", into = c('a','b','c')) %>%
   separate(c, into = c('name_short','e','f')) %>%
   select(!c(a,b,e,f)) %>%
   mutate(across(name_short, toupper),
-         begin = as.Date(begin,"%Y-%m-%d"),
-         end = as.Date(end,"%Y-%m-%d"))
-
-#* Correct start dates that were reported as end dates and vice versa ----
-
-all_data <- all_data %>%
-  transform(begin = pmin(begin, end),
-            end   = pmax(begin, end))
-
-#* Calculate each datasets length in years ----
-
-all_data <- all_data %>%
-  mutate(diff = round(time_length(difftime(end,begin), "years"),3))
-
-# Treat the Harvard Forest data the same as all_data
-# Recall HF reports start and end as year which is why it is treated differently
-
-harvard_data <- harvard_data %>%
-  mutate(newcol = package_id) %>%
-  separate(newcol, sep = "-", into = c('a','b','c')) %>%
-  separate(c, into = c('name_short','e','f')) %>%
-  select(!c(a,b,e,f)) %>%
-  mutate(mutate(across(name_short, toupper),
-         begin = as.numeric(begin),
-         end = as.numeric(end),
-         diff = (end-begin)+1))
-harvard_data <- harvard_data[,c(1:4,6,5)]
-harvard_data <- harvard_data %>%
-  mutate(begin = as.Date(NA),
-         end = as.Date(NA),
-         diff = as.numeric(diff))
-
-# Combine all_data w/ HF and combine with LTER description csv ----
-
-all_data <- rbind(all_data,harvard_data)
+         begin = parse_date_time(begin, orders = c("ymd", "-ymd", "y")),
+         end = parse_date_time(end, orders = c("ymd", "-ymd", "y")),
+         diff_years = as.numeric(round(interval(begin, end) / dyears(1),2)),
+         diff_years = ifelse(diff_years < 0, diff_years*-1,diff_years))
 
 setwd("D:/School/Applications/Job and Fellowship Applications/L&O Eco-DAS")
 
 lter <- read.csv('lter_sites.csv')
 
-all_data <- left_join(all_data,lter, by = 'name_short')
+dat <- left_join(dat,lter, by = 'name_short')
 
-all_data <- all_data %>%
+dat <- dat %>%
   mutate(current_year = ifelse(end_year > 2023, 2023, end_year),
          around_time = (current_year-start_year)+1,
-         frac = (diff/around_time)*100)
+         frac = diff_years/around_time)
+
+# write.csv(all_data,'LTER_timeseriesLength.csv')
 
 # Figures ----
 # width = 800 height = 600
 
-all_data %>%
-  ggplot(aes(diff)) +
+dat %>%
+  ggplot(aes(diff_years)) +
   stat_ecdf(geom = 'step', pad = F) +
   labs(x = 'Time Series Length (years)',
        y = 'ECDF') +
   scale_x_continuous(breaks = seq(0,40,5)) +
-  scale_y_continuous(breaks = seq(0,1,0.1)) +
+  scale_y_continuous(breaks = seq(0,1,0.1), limits = c(0,1)) +
   coord_cartesian(xlim = c(0, 40)) +
   theme_bw() +
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 16, color = 'black'))
 
+# width = 800 height = 600
+
+a <- ecdf(dat$diff_years)
+quantile(a, probs = seq(0,0.95,0.01))
+
+dat %>%
+  ggplot(aes(diff_years)) +
+  geom_segment(x = 2.18, y = -Inf, xend = 2.18, yend = 0.5, color = 'red', linetype = 'longdash') +
+  geom_segment(x = -Inf, y = 0.5, xend = 2.18, yend = 0.5, color = 'red', linetype = 'longdash') +
+  geom_segment(x = 6, y = -Inf, xend = 6, yend = 0.62, color = 'red', linetype = 'longdash') +
+  geom_segment(x = -Inf, y = 0.62, xend = 6, yend = 0.62, color = 'red', linetype = 'longdash') +
+  geom_segment(aes(x = 11, y = 0.5, xend = 7, yend = 0.58),
+               arrow = arrow(length = unit(0.3, "cm"), type = "closed")) +
+  annotate('text', label = 'LTER Funding Cycle \n(every 6 years)', x = 15.5, y = 0.45, size = 5) +
+  stat_ecdf(geom = 'step', pad = F) +
+  labs(x = 'Time Series Length (years)',
+       y = 'ECDF') +
+  scale_x_continuous(breaks = seq(0,40,5)) +
+  scale_y_continuous(breaks = seq(0,1,0.1),limits = c(0,1)) +
+  coord_cartesian(xlim = c(0, 40)) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 16, color = 'black'),
+        plot.margin = grid::unit(c(2,5,0,0), "mm"))
+
 # width = 1000 height = 900
-all_data %>%
-  ggplot(aes(diff)) +
+dat %>%
+  ggplot(aes(diff_years)) +
   geom_hline(yintercept = 0.5, color = 'red', linetype = 'longdash') +
   stat_ecdf(geom = 'step', pad = F) +
   labs(x = 'Time Series Length (years)',
@@ -489,28 +479,28 @@ all_data %>%
   facet_wrap(~name_long)
 
 # width = 800 height = 600
-all_data %>%
+dat %>%
   ggplot(aes(frac)) +
   stat_ecdf(geom = 'step', pad = F) +
-  labs(x = 'Fraction of Timeseries Length/Site Length',
+  labs(x = 'Ratio of Timeseries Duration:Site Duration',
        y = 'ECDF') +
-  scale_x_continuous(breaks = seq(0,100,10)) +
-  scale_y_continuous(breaks = seq(0,1,0.1)) +
-  coord_cartesian(xlim = c(0, 100)) +
+  scale_x_continuous(breaks = seq(0,1,0.1)) +
+  scale_y_continuous(breaks = seq(0,1,0.1),limits = c(0,1)) +
+  coord_cartesian(xlim = c(0,1)) +
   theme_bw() +
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 16, color = 'black'))
 
 # width = 1000 height = 900
-all_data %>%
+dat %>%
   ggplot(aes(frac)) +
   geom_hline(yintercept = 0.5, color = 'red', linetype = 'longdash') +
   stat_ecdf(geom = 'step', pad = F) +
   labs(x = 'Fraction of Timeseries Length/Site Length',
        y = 'ECDF') +
-  scale_x_continuous(breaks = seq(0,100,20)) +
-  scale_y_continuous(breaks = seq(0,1,0.2)) +
-  coord_cartesian(xlim = c(0, 100)) +
+  scale_x_continuous(breaks = seq(0,1,0.2)) +
+  scale_y_continuous(breaks = seq(0,1,0.2),limits = c(0,1)) +
+  coord_cartesian(xlim = c(0,1)) +
   theme_bw() +
   theme(axis.title = element_text(size = 12),
         axis.text = element_text(size = 12, color = 'black')) +
