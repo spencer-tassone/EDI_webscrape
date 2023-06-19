@@ -410,6 +410,8 @@ dat <- all_data %>%
          diff_years = as.numeric(round(interval(begin, end) / dyears(1),2)),
          diff_years = ifelse(diff_years < 0, diff_years*-1,diff_years))
 
+1-(sum(is.na(dat$diff_years))/NROW(dat)) # dat represents 94.3 % of all available datasets
+
 setwd("D:/School/Applications/Job and Fellowship Applications/L&O Eco-DAS")
 
 lter <- read.csv('lter_sites.csv')
